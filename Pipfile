@@ -7,6 +7,9 @@ name = "pypi"
 starlette = "*"
 uvicorn = "*"
 graphene = "*"
+starlette-graphene3 = "*"
+websockets = "*"
+invana = {ref = "dev", git = "https://github.com/invanalabs/invana-py.git"}
 
 [dev-packages]
 

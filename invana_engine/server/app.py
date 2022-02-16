@@ -31,6 +31,10 @@ from invana_engine.server.views import homepage_view
 # from ..gremlin import InvanaEngineClient
 from invana_engine.settings import gremlin_server_url, shall_debug, \
     gremlin_traversal_source
+import graphene
+from starlette_graphene3 import GraphQLApp, make_graphiql_handler
+from ..modeller.query import Query
+from invana import InvanaGraph
 
 print(".................................................")
 print("Starting Invana Engine server")
@@ -47,7 +51,7 @@ if gremlin_server_url is None:
 routes = [
     Route('/', endpoint=homepage_view),
     # Route('/graphql', GraphQLApp(
-    #     schema=Schema(query=GremlinQuery, mutation=GremlinMutation),
+    #     graphene.Schema(query=Query), on_get=make_graphiql_handler()  # , mutation=Mutation, subscription=Subscription),
     # ))
 ]
 
@@ -57,3 +61,12 @@ middleware = [
 
 app = Starlette(routes=routes, middleware=middleware, debug=shall_debug)
 
+schema = graphene.Schema(query=Query)  # , mutation=Mutation, subscription=Subscription)
+app.mount("/graphql", GraphQLApp(schema, on_get=make_graphiql_handler()))  # Graphiql IDE
+
+app.state.graph = InvanaGraph(
+    gremlin_server_url,
+    # gremlin_server_username=gremlin_server_username,
+    # gremlin_server_password=gremlin_server_password,
+    traversal_source=gremlin_traversal_source
+)
